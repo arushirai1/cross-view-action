@@ -229,3 +229,17 @@ class DataGenerator(keras.utils.Sequence):
 
         return clips, view, target, t_class, t_view, t_noise
 
+train_list = np.loadtxt(params.train_list1, dtype=str)
+
+training_generator = DataGenerator(train_list,
+                            batch_size=params.batch_size,
+                            num_frames=params.num_frames,
+                            num_channels=params.num_channels,
+                            num_views=params.num_views,
+                            num_clips=params.num_clips,
+                            num_classes=params.num_classes,
+                            shuffle=params.shuffle,
+                            crop_size=params.crop_size)
+import pdb
+
+pdb.set_trace()
