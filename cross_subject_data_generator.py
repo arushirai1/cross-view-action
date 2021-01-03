@@ -23,7 +23,7 @@ class DataGenerator(keras.utils.Sequence):
                 crop_size=112, num_channels=3, num_views=3,
                 num_classes=60, shuffle=False):
         'Initialization'
-        batch_size=batch_size/num_views
+        batch_size=batch_size//num_views
         self.num_clips = num_clips
         self.num_frames = num_frames
         self.crop_size = crop_size
