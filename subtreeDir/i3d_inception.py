@@ -496,7 +496,7 @@ def Inception_Inflated3d(include_top=True,
 
     if include_top:
         # Classification block
-        x = AveragePooling3D((2, 7, 7), strides=(1, 1, 1), padding='valid', name='global_avg_pool')(x)
+        x = AveragePooling3D((2, 4, 4), strides=(1, 1, 1), padding='valid', name='global_avg_pool')(x)
         x = Dropout(dropout_prob)(x)
 
         x = conv3d_bn(x, classes, 1, 1, 1, padding='same', 

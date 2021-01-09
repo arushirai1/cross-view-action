@@ -152,8 +152,6 @@ class DataGenerator(keras.utils.Sequence):
         return (target-128.)/128., t_class, t_view, t_noise
 
     def get_frames(self, ID):
-        pdb.set_trace()
-
         vid = ID[0]
         clips = np.empty((self.num_views*self.num_clips, self.num_frames, self.crop_size, self.crop_size, self.num_channels))
         #view = np.empty((self.num_views*self.num_clips, self.num_frames, 1, 1, self.view_dims))
@@ -219,18 +217,4 @@ class DataGenerator(keras.utils.Sequence):
             clips[i,], t_class[i,] = self._get_sample(ID)
             
 
-        return clips, t_class
-
-train_list = np.loadtxt(params.train_list, dtype=str)
-
-training_generator = DataGenerator(train_list,
-                            batch_size=params.batch_size,
-                            num_frames=params.num_frames,
-                            num_channels=params.num_channels,
-                            num_views=params.num_views,
-                            num_clips=params.num_clips,
-                            num_classes=params.num_classes,
-                            shuffle=params.shuffle,
-                            crop_size=params.crop_size)
-
-training_generator.__getitem__(0)
+        return clips.reshape((self.batch_size*2, -1, self.crop_size, self.crop_size, self.num_channels)).astype(np.float32), np.repeat(t_class, 2, axis=0)
