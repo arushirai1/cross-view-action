@@ -124,7 +124,7 @@ class DataGenerator(keras.utils.Sequence):
         random_view=cam_p
         fcount = int(ID[random_view])
         skip_rate = 3
-        r_id = np.random.randint(0, fcount-(self.num_frames+1)*skip_rate)
+        r_id = np.random.randint(0, fcount-(self.num_frames+1)*skip_rate) # start index
         
         f_path = os.path.join(params.rgb_data, vid, str(random_view), '{:03d}.jpg'.format(r_id))
         img = cv2.imread(f_path)

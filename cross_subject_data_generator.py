@@ -7,6 +7,7 @@ import cv2
 import os
 
 import params as params
+import pdb
 
 def decrypt_vid_name(vid):
 
@@ -60,9 +61,9 @@ class DataGenerator(keras.utils.Sequence):
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
 
         # Generate data
-        clips, view, target, t_class, t_view, t_noise = self.__data_generation(list_IDs_temp)
+        clips, target = self.__data_generation(list_IDs_temp)
 
-        return [clips, view, t_view, t_noise], [t_class, target]
+        return [clips], [target]
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
@@ -151,7 +152,8 @@ class DataGenerator(keras.utils.Sequence):
         return (target-128.)/128., t_class, t_view, t_noise
 
     def get_frames(self, ID):
-        
+        pdb.set_trace()
+
         vid = ID[0]
         clips = np.empty((self.num_views*self.num_clips, self.num_frames, self.crop_size, self.crop_size, self.num_channels))
         #view = np.empty((self.num_views*self.num_clips, self.num_frames, 1, 1, self.view_dims))
@@ -207,6 +209,7 @@ class DataGenerator(keras.utils.Sequence):
     def __data_generation(self, list_IDs_temp):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
+
         clips = np.empty((self.batch_size, self.num_views*self.num_clips, self.num_frames, self.crop_size, self.crop_size, self.num_channels))
         t_class = np.empty((self.batch_size, params.num_classes))
 
@@ -229,6 +232,5 @@ training_generator = DataGenerator(train_list,
                             num_classes=params.num_classes,
                             shuffle=params.shuffle,
                             crop_size=params.crop_size)
-import pdb
 
-pdb.set_trace()
+training_generator.__getitem__(0)
