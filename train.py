@@ -15,39 +15,60 @@ from c3d_a import rep_model
 from c3d_b import clas_model
 import numpy as np
 import os
+from subtreeDir.i3d_inception import Inception_Inflated3d
+
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'
 # os.environ['CUDA_VISIBLE_DEVICES'] = '3'
-
-def train_model(weights=True):
-    # Standardizing the input shape order
-    K.set_image_dim_ordering('tf')
-
+def representation_learning_framework():
+    '''
+    Instantiates the representation learning framework introduced in "Multi-view Action Recognition using Cross-view Video Prediction"
+    :return: Model
+    '''
     # create the representation model
-    input_shape1 = (params.num_views*params.num_clips, params.num_frames, params.crop_size, params.crop_size, params.num_channels)
-    input_shape2 = (params.num_views*params.num_clips, params.num_frames, 1, 1, params.view_dims)
-    
+    input_shape1 = (
+    params.num_views * params.num_clips, params.num_frames, params.crop_size, params.crop_size, params.num_channels)
+    input_shape2 = (params.num_views * params.num_clips, params.num_frames, 1, 1, params.view_dims)
+
     model1 = rep_model(input_shape1, input_shape2)
-    
+
     inputs1 = Input(input_shape1)
     inputs2 = Input(input_shape2)
-    
-    #clas = model1([inputs1, inputs2])
-    #clas, r = model1([inputs1, inputs2])
+
+    # clas = model1([inputs1, inputs2])
+    # clas, r = model1([inputs1, inputs2])
     r = model1([inputs1, inputs2])
-    
+
     clas = clas_model(r)
 
     v = Input(shape=params.v_shape)
     z = Input(shape=params.z_shape)
-    
-    g = generator_model(r, v, z)
-    
-    model = Model(inputs=[inputs1,inputs2,v,z], outputs=[clas, g])
 
-    model.compile(loss=['categorical_crossentropy','mse'], optimizer=Adam(lr=params.lr), metrics=['accuracy'])
-    #model1.compile(loss=['categorical_crossentropy'], optimizer=Adam(lr=params.lr), metrics=['accuracy'])
-    
+    g = generator_model(r, v, z)
+
+    model = Model(inputs=[inputs1, inputs2, v, z], outputs=[clas, g])
+    return model
+def get_i3d_model():
+    model = Inception_Inflated3d(include_top=True,
+                                 weights=None,
+                                 input_tensor=Input((params.num_clips * params.num_frames, params.crop_size,
+                                                     params.crop_size, params.num_channels)),
+                                 input_shape=(params.num_clips * params.num_frames, params.crop_size, params.crop_size,
+                                              params.num_channels),
+                                 dropout_prob=0.0,
+                                 endpoint_logit=False,
+                                 classes=60)
+def train_model(weights=True):
+    # Standardizing the input shape order
+    K.set_image_dim_ordering('tf')
+
+    if params.model_type == 'repr':
+        model = representation_learning_framework()
+        model.compile(loss=['categorical_crossentropy','mse'], optimizer=Adam(lr=params.lr), metrics=['accuracy'])
+    elif params.model_type == 'i3d':
+        model = get_i3d_model()
+        model.compile(loss=['categorical_crossentropy'], optimizer=Adam(lr=params.lr), metrics=['accuracy'])
+
     if weights:
         model.load_weights(params.model_weights1, by_name=True)
     
