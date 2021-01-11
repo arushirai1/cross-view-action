@@ -7,7 +7,6 @@ from keras.models import Model
 from keras.layers import Input, merge, Lambda
 from keras.optimizers import Adam
 from keras import backend as K
-from data_generator import DataGenerator
 from data_generator_1 import DataGenerator_1
 import params as params
 from generator import generator_model
@@ -17,6 +16,10 @@ import numpy as np
 import os
 from subtreeDir.i3d_inception import Inception_Inflated3d
 
+if params.model_type == 'i3d':
+    from cross_subject_data_generator import DataGenerator
+else:
+    from data_generator import DataGenerator
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'
 # os.environ['CUDA_VISIBLE_DEVICES'] = '3'
@@ -63,9 +66,16 @@ def train_model(weights=True):
     K.set_image_dim_ordering('tf')
 
     if params.model_type == 'repr':
+        train_list = np.loadtxt(params.train_list1, dtype=str)
+        validation_list = np.loadtxt(params.val_list1, dtype=str)
+
         model = representation_learning_framework()
         model.compile(loss=['categorical_crossentropy','mse'], optimizer=Adam(lr=params.lr), metrics=['accuracy'])
+
     elif params.model_type == 'i3d':
+        train_list = np.loadtxt(params.train_list, dtype=str)
+        validation_list = np.loadtxt(params.val_list, dtype=str)
+
         model = get_i3d_model()
         model.compile(loss=['categorical_crossentropy'], optimizer=Adam(lr=params.lr), metrics=['accuracy'])
 
@@ -85,8 +95,6 @@ def train_model(weights=True):
     """
     # train_list = np.loadtxt(params.train_list, dtype=str)
     # validation_list = np.loadtxt(params.val_list, dtype=str)
-    train_list = np.loadtxt(params.train_list1, dtype=str)
-    validation_list = np.loadtxt(params.val_list1, dtype=str)
 
     train_steps_per_epoch = len(train_list)/params.batch_size
     val_steps = len(validation_list)/params.batch_size

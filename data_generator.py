@@ -240,6 +240,3 @@ training_generator = DataGenerator(train_list,
                             num_classes=params.num_classes,
                             shuffle=params.shuffle,
                             crop_size=params.crop_size)
-import pdb
-
-pdb.set_trace()
