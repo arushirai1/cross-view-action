@@ -1,6 +1,6 @@
 import tensorflow as tf
 from keras import backend as K
-tf.set_random_seed(1)
+tf.random.set_seed(1)
 from keras.callbacks import TensorBoard, ModelCheckpoint
 
 from keras.models import Model
@@ -61,9 +61,10 @@ def get_i3d_model():
                                  dropout_prob=0.0,
                                  endpoint_logit=False,
                                  classes=60)
+    return model
 def train_model(weights=True):
     # Standardizing the input shape order
-    K.set_image_dim_ordering('tf')
+    K.set_image_data_format('channels_last')
 
     if params.model_type == 'repr':
         train_list = np.loadtxt(params.train_list1, dtype=str)
@@ -83,6 +84,7 @@ def train_model(weights=True):
         model.load_weights(params.model_weights1, by_name=True)
     
     model.summary(line_length=120)
+    print(tf.test.is_gpu_available())
     """
     video_list = np.loadtxt(params.video_list, dtype=str)
     np.random.shuffle(video_list)
@@ -96,8 +98,8 @@ def train_model(weights=True):
     # train_list = np.loadtxt(params.train_list, dtype=str)
     # validation_list = np.loadtxt(params.val_list, dtype=str)
 
-    train_steps_per_epoch = len(train_list)/params.batch_size
-    val_steps = len(validation_list)/params.batch_size
+    train_steps_per_epoch = (len(train_list)*2)/params.batch_size
+    val_steps = (len(validation_list)*2)/params.batch_size
 
     training_generator = DataGenerator(train_list, 
                                 batch_size=params.batch_size,
@@ -121,7 +123,7 @@ def train_model(weights=True):
 
 
     checkpoint = ModelCheckpoint(filepath=params.out_dir+"/2views_{epoch:03d}-{val_loss:.6f}-{val_prediction_acc:.3f}-1.h5", verbose=1, monitor='val_prediction_acc', save_best_only=True)
-
+    print("Train steps:", train_steps_per_epoch)
     model.fit_generator(generator=training_generator, 
                         validation_data=validation_generator,
                         steps_per_epoch=train_steps_per_epoch, 
@@ -138,5 +140,5 @@ def train_model(weights=True):
     model.save_weights(params.out_dir+'/model_weights.h5')
 
 if __name__=='__main__':
-    train_model()
+    train_model(weights=False)
 

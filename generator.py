@@ -12,7 +12,7 @@ from keras.utils import to_categorical
 import scipy
 import tensorflow as tf
 from keras import backend as K
-tf.set_random_seed(1)
+tf.random.set_seed(1)
 import params as params
 #import matplotlib.pyplot as plt
 
