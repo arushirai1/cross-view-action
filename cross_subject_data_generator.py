@@ -63,7 +63,7 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         clips, target = self.__data_generation(list_IDs_temp)
 
-        return [clips], [target]
+        return clips, target
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
