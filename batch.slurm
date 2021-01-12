@@ -12,6 +12,8 @@
 #SBATCH --mail-user arai4@hawk.iit.edu        # Use this address
 
 module load anaconda/anaconda3
-source activate cross-view-arushi
-apt-get install nvidia-cuda-toolkit
-nvcc --version
+module load cuda/cuda-11.0
+
+source activate cv-arushi
+python train.py
+

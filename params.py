@@ -16,7 +16,7 @@ train_list1 = 'data/video.list'
 val_list1 = 'data/video.list'
 
 # training parameters
-batch_size=32
+batch_size=16
 crop_size=112
 num_clips=2
 num_frames=6
@@ -34,7 +34,7 @@ num_train_samples=16000
 center_crop=True
 
 lr = 1e-5
-epochs=10000
+epochs=25
 out_dir='test'
 
 model_weights1='test/2views_101-0.604319-0.851-1.h5'

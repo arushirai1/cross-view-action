@@ -132,8 +132,8 @@ def train_model(weights=True):
                         epochs=params.epochs,
                         callbacks=[checkpoint],
                         max_queue_size=4,
-                        use_multiprocessing=True,
-                        initial_epoch=101,
+                        use_multiprocessing=False,
+                        initial_epoch=0,
                         workers=4)
 
     model.save(params.out_dir+'/model.h5')
