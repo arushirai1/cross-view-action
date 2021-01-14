@@ -170,7 +170,7 @@ class DataGenerator(keras.utils.Sequence):
         skip_rate = 3
         # np.random.shuffle(cam_ids)
         # cam = cam_ids[0]
-        cam = ID[4]
+        cam = int(ID[4])
         fcount = int(ID[cam])
 
         # select random frames
