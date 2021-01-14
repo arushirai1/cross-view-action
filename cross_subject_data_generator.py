@@ -24,13 +24,13 @@ class DataGenerator(keras.utils.Sequence):
                 crop_size=112, num_channels=3, num_views=3,
                 num_classes=60, shuffle=False):
         'Initialization'
-        batch_size=batch_size//num_views
+        #batch_size=batch_size//num_views
         self.num_clips = num_clips
         self.num_frames = num_frames
         self.crop_size = crop_size
         self.num_views = num_views
         self.batch_size = batch_size
-        self.list_IDs = list_IDs
+        self.list_IDs = self.__duplicate_views(list_IDs)
         self.num_channels = num_channels
         self.num_classes = num_classes
         self.shuffle = shuffle
@@ -39,6 +39,12 @@ class DataGenerator(keras.utils.Sequence):
         self.on_epoch_end()
 
         self.view_params = self.__load_view_params()
+    def __duplicate_views(self, list_IDs):
+        view_a = np.full(list_IDs.shape[0],1)
+        view_b = np.full(list_IDs.shape[0],2)
+        list_IDs = np.tile(list_IDs,(2,1))
+        list_IDs = np.append(list_IDs, np.append(view_a, view_b, 0).reshape((-1, 1)), 1)
+        return list_IDs
 
     def __load_view_params(self):
         view_params = np.loadtxt(params.view_params)
@@ -217,4 +223,5 @@ class DataGenerator(keras.utils.Sequence):
             clips[i,], t_class[i,] = self._get_sample(ID)
             
 
-        return clips.reshape((self.batch_size*2, -1, self.crop_size, self.crop_size, self.num_channels)).astype(np.float32), np.repeat(t_class, 2, axis=0)
+        return clips.astype(np.float32), t_class
+

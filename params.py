@@ -16,7 +16,7 @@ train_list1 = 'data/video.list'
 val_list1 = 'data/video.list'
 
 # training parameters
-batch_size=16
+batch_size=32
 crop_size=112
 num_clips=2
 num_frames=6

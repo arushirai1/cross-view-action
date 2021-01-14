@@ -84,7 +84,7 @@ def train_model(weights=True):
         model.load_weights(params.model_weights1, by_name=True)
     
     model.summary(line_length=120)
-    print(tf.test.is_gpu_available())
+    print(tf.config.list_physical_devices('GPU'))
     """
     video_list = np.loadtxt(params.video_list, dtype=str)
     np.random.shuffle(video_list)
@@ -132,7 +132,7 @@ def train_model(weights=True):
                         epochs=params.epochs,
                         callbacks=[checkpoint],
                         max_queue_size=4,
-                        use_multiprocessing=False,
+                        use_multiprocessing=True,
                         initial_epoch=0,
                         workers=4)
 
