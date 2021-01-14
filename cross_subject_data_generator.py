@@ -159,7 +159,7 @@ class DataGenerator(keras.utils.Sequence):
 
     def get_frames(self, ID):
         vid = ID[0]
-        clips = np.empty((self.num_views*self.num_clips, self.num_frames, self.crop_size, self.crop_size, self.num_channels))
+        clips = np.empty((self.num_clips*self.num_frames, self.crop_size, self.crop_size, self.num_channels))
         #view = np.empty((self.num_views*self.num_clips, self.num_frames, 1, 1, self.view_dims))
         v_name = os.path.split(vid)[1]
         scene, pid, rid, action = decrypt_vid_name(v_name)
@@ -168,38 +168,37 @@ class DataGenerator(keras.utils.Sequence):
         # iterate through all views and collect frames
         cnt = 0
         skip_rate = 3
-        cam_ids = [1,2]
         # np.random.shuffle(cam_ids)
         # cam = cam_ids[0]
-        for cam in cam_ids:
-            fcount = int(ID[cam])
-            
-            # select random frames
-            ids = np.random.randint(0, fcount-(self.num_frames+1)*skip_rate, self.num_clips)
-            # ids = [6,6]
-            # collect random frames from this view
-            for _id in ids:
-                f_path = os.path.join(params.rgb_data, vid, str(cam), '{:03d}.jpg'.format(_id))
+        cam = ID[4]
+        fcount = int(ID[cam])
+
+        # select random frames
+        ids = np.random.randint(0, fcount-(self.num_frames+1)*skip_rate, self.num_clips)
+        # ids = [6,6]
+        # collect random frames from this view
+        for _id in ids:
+            f_path = os.path.join(params.rgb_data, vid, str(cam), '{:03d}.jpg'.format(_id))
+            img = cv2.imread(f_path)
+            height, width, channels = img.shape
+
+            crop_pos_x = np.random.randint(0, height-self.crop_size)
+            crop_pos_y = np.random.randint(0, width-self.crop_size)
+            # view[cnt, 0, 0, 0, ] = self.get_view(vid, cam, crop_pos_x, crop_pos_y, height, width, _id, fcount)
+            if params.center_crop:
+                # if we need to crop only from the center of the frame
+                crop_pos_y = np.random.randint(50, width-self.crop_size-50)
+
+            for j in range(params.num_frames):
+
+                img_sample = img[crop_pos_x:crop_pos_x+self.crop_size, crop_pos_y:crop_pos_y+self.crop_size]
+                clips[cnt*j+j, ] = (img_sample-128.)/128.
+                f_path = os.path.join(params.rgb_data, vid, str(cam), '{:03d}.jpg'.format(_id+(j+1)*skip_rate))
                 img = cv2.imread(f_path)
-                height, width, channels = img.shape
 
-                crop_pos_x = np.random.randint(0, height-self.crop_size)
-                crop_pos_y = np.random.randint(0, width-self.crop_size)
-                # view[cnt, 0, 0, 0, ] = self.get_view(vid, cam, crop_pos_x, crop_pos_y, height, width, _id, fcount)
-                if params.center_crop:
-                    # if we need to crop only from the center of the frame
-                    crop_pos_y = np.random.randint(50, width-self.crop_size-50)
+                #view[cnt, j, 0, 0, ] = self.get_view(vid, cam, crop_pos_x, crop_pos_y, height, width, _id, fcount)
 
-                for j in range(params.num_frames):
-                    
-                    img_sample = img[crop_pos_x:crop_pos_x+self.crop_size, crop_pos_y:crop_pos_y+self.crop_size]    
-                    clips[cnt, j, ] = (img_sample-128.)/128.
-                    f_path = os.path.join(params.rgb_data, vid, str(cam), '{:03d}.jpg'.format(_id+(j+1)*skip_rate))
-                    img = cv2.imread(f_path)
-
-                    #view[cnt, j, 0, 0, ] = self.get_view(vid, cam, crop_pos_x, crop_pos_y, height, width, _id, fcount)
-                
-                cnt += 1
+            cnt += 1
 
         return clips, action
 
@@ -214,7 +213,7 @@ class DataGenerator(keras.utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
 
-        clips = np.empty((self.batch_size, self.num_views*self.num_clips, self.num_frames, self.crop_size, self.crop_size, self.num_channels))
+        clips = np.empty((self.batch_size, self.num_clips*self.num_frames, self.crop_size, self.crop_size, self.num_channels))
         t_class = np.empty((self.batch_size, params.num_classes))
 
         # Generate data
