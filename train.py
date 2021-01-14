@@ -98,8 +98,8 @@ def train_model(weights=True):
     # train_list = np.loadtxt(params.train_list, dtype=str)
     # validation_list = np.loadtxt(params.val_list, dtype=str)
 
-    train_steps_per_epoch = (len(train_list)*2)/params.batch_size
-    val_steps = (len(validation_list)*2)/params.batch_size
+    train_steps_per_epoch = (len(train_list))/params.batch_size
+    val_steps = (len(validation_list))/params.batch_size
 
     training_generator = DataGenerator(train_list, 
                                 batch_size=params.batch_size,
